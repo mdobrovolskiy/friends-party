@@ -1,0 +1,17 @@
+export const avatars = [
+  'https://i.ibb.co/5GJhwkh/0eb614d0222ca178f14a60b7275e16ef.webp',
+  'https://i.ibb.co/mGYR3Jg/1-Bua2qt-Mxo-Vl-585x1170.webp',
+  'https://i.ibb.co/Wcd2sKT/clonex-7856.webp',
+  'https://i.ibb.co/dfm1jyF/d6a60d0a872a23565e4b640cf06ddf01.webp',
+  'https://i.ibb.co/WgvQ0Zh/im-491396.webp',
+  'https://i.ibb.co/vd9tYqS/im-491399-1.webp',
+  'https://i.ibb.co/WtsywLx/images-1.webp',
+  'https://i.ibb.co/TwPW6VP/Norman-2047-Anime.webp',
+  'https://i.ibb.co/bsJP1hG/pngtree-nft-avatar-vector-element-png-image-6502039.webp',
+  'https://i.ibb.co/GWjjJtJ/unnamed.webp',
+  'https://i.ibb.co/THNsR4v/unnamed-1.webp',
+  'https://i.ibb.co/Pmg6GLP/visitors-of-imma-degen-VOID-avatar-icon.webp',
+  'https://i.ibb.co/mDKwxXP/x89xed-Dc-Jw-XM-585x329.webp',
+  'https://i.ibb.co/hDw9Bwj/966fae648396abdf17ac7bd161237ca6.webp',
+  'https://i.ibb.co/gwHzVsd/goatverse-4x.webp',
+]
