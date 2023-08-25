@@ -19,7 +19,6 @@ const CreateGame = () => {
 
   let a = Math.floor(Date.now() + Math.floor(Math.random() * 20000))
   const localId = Math.round(Date.now() + Math.random() * 10000)
-  console.log(process.env)
 
   const createUser = async () => {
     await addDoc(collection(db, `usersId=${a}`), {
