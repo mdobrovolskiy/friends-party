@@ -10,7 +10,7 @@ const User = ({
   isRoundEnded,
 }) => {
   return (
-    <div className="player">
+    <div className={`player ${user.isOnline ? '' : 'offline'}`}>
       <div className="iconLeft">
         {isGameStarted && nextMove === user.id && (
           <svg

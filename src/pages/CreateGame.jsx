@@ -8,8 +8,10 @@ import { useSelector, useDispatch } from 'react-redux'
 import { setCurrentUser } from '../redux/Slices/userSlice'
 import CardGame from '../components/CardGame'
 import { setTheme } from '../redux/Slices/themeSlice'
+import { useTranslation } from 'react-i18next'
 
 const CreateGame = () => {
+  const { t } = useTranslation()
   const lightTheme = useSelector((state) => state.themeSlice.lightTheme)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -17,6 +19,7 @@ const CreateGame = () => {
 
   let a = Math.floor(Date.now() + Math.floor(Math.random() * 20000))
   const localId = Math.round(Date.now() + Math.random() * 10000)
+  console.log(process.env)
 
   const createUser = async () => {
     await addDoc(collection(db, `usersId=${a}`), {
@@ -38,6 +41,7 @@ const CreateGame = () => {
       entryPointScore: 0,
       winPoints: 20,
       avatar: 'https://i.ibb.co/gwHzVsd/goatverse-4x.webp',
+      isOnline: true,
     })
     navigate(`/${a}`)
     dispatch(
@@ -71,13 +75,13 @@ const CreateGame = () => {
       <div className="wrapperAction">
         <CardGame
           createUser={createUser}
-          title={'Alias'}
-          description={'cool game for parties, name a word without saying it'}
+          title={t('landing.alias')}
+          description={t('landing.subText')}
           img={'https://i.ibb.co/WsX0C9Y/256x256bb.webp'}
         />
         <CardGame
-          title={'Memes'}
-          description={'project is in the development'}
+          title={t('landing.memes')}
+          description={t('landing.dev')}
           img={'https://i.ibb.co/FqHQbrN/unnamed-1.webp'}
         />
       </div>

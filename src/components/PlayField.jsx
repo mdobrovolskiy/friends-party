@@ -1,10 +1,10 @@
 import React from 'react'
 import { doc, updateDoc, addDoc, collection } from 'firebase/firestore'
 import { db } from '../firebase'
-import { useSelector } from 'react-redux'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const PlayField = React.memo(
   ({
@@ -28,6 +28,7 @@ const PlayField = React.memo(
     lightTheme,
     client,
   }) => {
+    const { t } = useTranslation()
     const playersWithTeam = users.filter((item) => item.team > 0)
 
     const [isTimerActive, setIsTimerActive] = useState(false)
@@ -36,7 +37,7 @@ const PlayField = React.memo(
     const [intervalId, setIntervalId] = useState(null)
 
     const params = useParams()
-
+    // 2 2
     const nextTeamMove = () => {
       if (currentTeamMove < teamCount) {
         return currentTeamMove + 1
@@ -61,7 +62,7 @@ const PlayField = React.memo(
     }
 
     async function updateCounter() {
-      if (timer !== 50) {
+      if (timer !== 0) {
         const userRef = doc(db, `usersId=${params.id}`, admin.id)
         await updateDoc(userRef, {
           timeLeft: timer,
@@ -94,7 +95,7 @@ const PlayField = React.memo(
       if (isTimerActive) {
         updateCounter()
       }
-      if (timer === 50) {
+      if (timer === 0) {
         clearInterval(intervalId)
         setTimer(60)
         setIsTimerActive(false)
@@ -162,7 +163,7 @@ const PlayField = React.memo(
             updateUsersStatus()
             userRef = doc(db, `usersId=${params.id}`, currentTeamLeader.id)
             await updateDoc(userRef, {
-              nextMove: calculateCurrentMove(),
+              nextMove: calculateCurrentMove,
               entryPointScore: entryPointScore + roundScore,
             })
             userRef = doc(db, `usersId=${params.id}`, admin.id)
@@ -211,42 +212,41 @@ const PlayField = React.memo(
         switch (true) {
           case !isGameStarted:
             if (client == admin) {
-              return 'Start'
+              return t('field.start')
             } else {
-              return 'Waiting'
+              return t('field.waiting')
             }
           case client.team === currentTeamMove && !isTeamReady:
             if (client.isReady) {
-              return 'Not ready'
+              return t('field.notReady')
             } else {
-              return 'Ready'
+              return t('field.ready')
             }
           case client.id === nextMove && !isRoundStarted && !isRoundEnded:
             if (isTeamReady) {
-              return 'Start round'
+              return t('field.startRound')
             } else {
-              return 'Waiting'
+              return t('field.waiting')
             }
           case client.id !== nextMove && client.team === currentTeamMove:
             if (isTeamReady) {
-              return 'Unready'
+              return t('field.unready')
             }
             break
           case isRoundEnded && client.team === currentTeamMove:
-            return 'Confirm'
+            return t('field.confirm')
           case client.team !== currentTeamMove:
-            return 'Waiting'
+            return t('field.waiting')
           case isRoundStarted:
             if (client.id === nextMove && currentTeamMove === client.team) {
-              return 'Next'
+              return t('field.next')
             } else if (currentTeamMove === client.team) {
-              return 'Answer!'
+              return t('field.answer')
             } else {
-              return 'Prepare'
+              return t('field.prepare')
             }
-
           default:
-            return 'Spectating'
+            return t('field.spectating')
         }
       }
     }
@@ -254,28 +254,27 @@ const PlayField = React.memo(
       if (client) {
         switch (true) {
           case !isGameStarted:
-            return 'Waiting for start'
-
+            return t('button.start')
           case client.team === currentTeamMove && !isTeamReady:
-            return 'Get ready'
+            return t('button.waiting')
           case isRoundEnded && client.team === currentTeamMove:
-            return 'Check and confirm'
+            return t('button.checkAndConfirm')
           case client.team !== currentTeamMove:
-            return 'Waiting'
+            return t('button.waiting')
           case isRoundStarted:
             if (currentTeamMove === client.team) {
-              return 'Time to shine'
+              return t('button.timeToShine')
             } else {
-              return 'Opponent team is playing'
+              return t('button.opponentTeamPlaying')
             }
           case currentTeamMove === client.team &&
             !isTeamReady &&
             client.isReady:
-            return 'Waiting for teammate'
+            return t('button.waitingForTeammate')
           case isTeamReady:
-            return 'Waiting for leader to start'
+            return t('button.waitingForLeaderToStart')
           default:
-            return 'Waiting'
+            return t('button.waiting')
         }
       }
     }

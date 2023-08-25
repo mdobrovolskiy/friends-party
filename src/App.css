@@ -50,6 +50,9 @@
   position: relative;
   height: 40px;
 }
+.offline {
+  opacity: 0.5;
+}
 .player .avatarItem {
   width: 40px;
   height: 40px;
@@ -656,9 +659,22 @@ h1 {
   height: 50px;
   border-radius: 50%;
 }
+.changeLang {
+  border: none;
+  width: 30px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 20px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+.languages {
+  display: flex;
+}
 .settingsMain {
   width: 300px;
-  height: 400px;
+  height: 420px;
   background-color: #555555;
   border-radius: 20px;
   margin-right: 2vw;
@@ -766,6 +782,84 @@ h1 {
 .settingsItem .changeIGN {
   width: 80%;
 }
+
+.logWrapper {
+  width: 350px;
+  height: 300px;
+  overflow: hidden;
+  overflow-y: auto;
+  position: absolute;
+  left: 50px;
+  bottom: 100px;
+  z-index: 1;
+}
+.logWrapper::-webkit-scrollbar {
+  width: 5px;
+}
+.logWrapper::-webkit-scrollbar-thumb {
+  background-color: #555555;
+  border-radius: 16px;
+}
+.openLogs {
+  position: absolute;
+  top: 60px;
+  left: 50px;
+}
+.openLogs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 35px;
+  border-radius: 50px;
+  border: 0;
+  outline: 0;
+  font-size: 18px;
+  background: #08f;
+  color: #fff;
+  cursor: pointer;
+}
+.openLogs button img {
+  width: 28px;
+  margin-left: 5px;
+}
+.openLogs button:hover {
+  transition: 0.3s;
+  scale: 1.1;
+}
+.openLogs button:not(:hover) img {
+  transition: 0.3s;
+}
+.openLogs button:active {
+  transform: scale(0.9, 0.9);
+  transition: 200ms;
+}
+.openLogs button:not(:active) {
+  transition: 200ms;
+}
+
+.logUser {
+  width: 100%;
+  display: flex;
+  height: 30px;
+  padding-top: 5px;
+  margin-bottom: 5px;
+}
+.logUserAvatar {
+  width: 30px;
+  height: 100%;
+  margin-right: 5px;
+}
+.logUserName {
+  margin-right: 10px;
+}
+.logUserAvatar img {
+  margin-top: -5px;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
 @media (max-width: 440px) {
   .wordsContainer {
     height: 200px;
@@ -804,5 +898,10 @@ h1 {
   .teams {
     padding-top: 100px;
     padding-bottom: 10px;
+  }
+}
+@media (max-width: 800px) {
+  .openLogs {
+    display: none;
   }
 }

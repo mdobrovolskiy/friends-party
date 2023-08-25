@@ -1,13 +1,21 @@
 import Home from './pages/Home'
 import CreateGame from './pages/CreateGame'
+import { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import Memes from './pages/Memes'
+import { useEffect } from 'react'
+import i18next from 'i18next'
+
 function App() {
+  useEffect(() => {
+    document.documentElement.lang = i18next.language
+  }, [])
   return (
-    <Routes>
-      <Route path="/" element={<CreateGame />} />
-      <Route path=":id" element={<Home />} />
-    </Routes>
+    <Suspense>
+      <Routes>
+        <Route path="/" element={<CreateGame />} />
+        <Route path=":id" element={<Home />} />
+      </Routes>
+    </Suspense>
   )
 }
 

@@ -10,9 +10,7 @@ import { useParams } from 'react-router-dom'
 import { addDoc } from 'firebase/firestore'
 import WinModal from '../components/WinModal'
 import CopyLink from '../components/CopyLink'
-
-import { setCurrentUser } from '../redux/Slices/userSlice'
-
+import LogInfo from '../components/LogInfo'
 import {
   query,
   collection,
@@ -25,15 +23,16 @@ import { db } from '../firebase'
 
 import Word from '../components/Word'
 import Settings from '../components/Settings'
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { setTheme } from '../redux/Slices/themeSlice'
 import User from '../components/User'
-import { setSessionWords } from '../redux/Slices/wordsSlice'
+import { useTranslation } from 'react-i18next'
 
 function Home() {
+  const { t } = useTranslation()
   const params = useParams()
   const dispatch = useDispatch()
-  const sessionWords = useSelector((state) => state.wordsSlice.words)
+  let sessionWords = words
   const lightTheme = useSelector((state) => state.themeSlice.lightTheme)
 
   const [settingsOpened, setSettingsOpened] = useState(false)
@@ -46,13 +45,14 @@ function Home() {
   const [roundWords, setRoundWords] = useState([])
   const [lastWord, setLastWord] = useState('')
   const [avatarIndex, setAvatarIndex] = useState(3)
+  const [roundLogs, setRoundLogs] = useState([])
+  const [logsOpened, setLogsOpened] = useState(false)
   const roundScore = roundWords
     ?.map((item) => item.score)
     ?.reduce((acc, item) => acc + item, 0)
-  console.log(words)
   const currentUser = useSelector((state) => state.currentUserSlice.userName)
 
-  const admin = users.find((user) => user.isAdmin === true)
+  const admin = users?.find((user) => user.isAdmin === true)
 
   const currentTeamMove = admin?.currentTeamMove
 
@@ -71,16 +71,14 @@ function Home() {
   const uniqueId = admin?.uniqueId
   const isGameEnded = admin?.isGameEnded
 
-  const calculateCurrentMove = () => {
-    if (
-      currentTeam.findIndex((item) => item.id === nextMove) + 1 <
-      currentTeam.length
-    ) {
-      return currentTeam.findIndex((item) => item.id === nextMove) + 1
+  const calculateCurrentMove = useMemo(() => {
+    const moveIndex = currentTeam.findIndex((item) => item.id === nextMove)
+    if (moveIndex + 1 < currentTeam.length) {
+      return moveIndex + 1
     } else {
       return 0
     }
-  }
+  }, [nextMove, currentTeam])
 
   const entryPointScore = currentTeamLeader?.entryPointScore
   const timeLeft = admin?.timeLeft
@@ -97,12 +95,6 @@ function Home() {
 
   const maxTeamScore = Math.max(...users?.map((user) => user.teamScore))
   const maxPointer = users?.find((user) => user.teamScore === maxTeamScore)
-
-  useEffect(() => {
-    if (sessionWords.length < 50) {
-      dispatch(setSessionWords(words))
-    }
-  }, [])
 
   useEffect(() => {
     if (
@@ -123,6 +115,32 @@ function Home() {
       }
     }
   }, [currentTeamMove, isRoundEnded])
+
+  useEffect(() => {
+    if (isRoundEnded) {
+      const getLogs = async () => {
+        const roundWordsRef = doc(db, `usersId=${params.id}`, admin.id)
+        const nestedCollectionRef = collection(roundWordsRef, 'roundLogs')
+        const q = query(nestedCollectionRef, orderBy('created'))
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          const wordsCurr = querySnapshot.docs.map((doc) => ({
+            ...doc.data(),
+            id: doc.id,
+          }))
+
+          setRoundLogs(wordsCurr)
+        })
+
+        return () => {
+          unsubscribe()
+        }
+      }
+
+      getLogs()
+    }
+  }, [isRoundEnded])
+
   useEffect(() => {
     if (isRoundEnded && currentTeamLeader) {
       const updateTeamScore = async () => {
@@ -148,7 +166,10 @@ function Home() {
   }
 
   useEffect(() => {
-    setLastWord(sessionWords[randomWordIndex])
+    if (isGameStarted) {
+      setLastWord(sessionWords[randomWordIndex])
+      sessionWords.splice(randomWordIndex, 1)
+    }
   }, [moverLimit])
 
   useEffect(() => {
@@ -179,6 +200,27 @@ function Home() {
     }
   }, [currentTeamMove, uniqueId, moverLimit])
 
+  const handleUnload = () => {
+    const userRef = doc(db, `usersId=${params.id}`, client.id)
+    updateDoc(userRef, {
+      isOnline: false,
+    })
+  }
+  const handleLoad = () => {
+    const userRef = doc(db, `usersId=${params.id}`, client.id)
+    updateDoc(userRef, {
+      isOnline: true,
+    })
+  }
+
+  useEffect(() => {
+    window.addEventListener('unload', handleUnload)
+
+    return () => {
+      window.removeEventListener('unload', handleUnload)
+    }
+  }, [])
+
   useEffect(() => {
     const q = query(collection(db, `usersId=${params.id}`))
     const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
@@ -196,6 +238,9 @@ function Home() {
   }, [])
 
   useEffect(() => {
+    if (client) {
+      handleLoad()
+    }
     if (users.length > 0 && typeof client === 'undefined') {
       if (
         typeof clientLocalId === 'undefined' ||
@@ -218,6 +263,7 @@ function Home() {
             nextMove: 0,
             localId: clientLocalId,
             avatar: clientAvatar,
+            isOnline: true,
           })
         }
         createUser()
@@ -275,7 +321,9 @@ function Home() {
           />
         </button>
       </div>
+
       <CopyLink />
+
       {settingsOpened && (
         <Settings
           clientAvatar={clientAvatar}
@@ -311,7 +359,7 @@ function Home() {
         </label>
       </div>
 
-      <div className="teams">Teams:</div>
+      <div className="teams">{t('main.teams')} :</div>
       <div className="teamContainer">
         {!isGameStarted &&
           mockArray.map((item, i) => (
@@ -368,6 +416,7 @@ function Home() {
           <div className="loggedUsers">
             {spectators.map((user) => (
               <div className="loggedContainer">
+                {' '}
                 <User clientId={client} user={user} key={user.id} />
               </div>
             ))}
@@ -384,6 +433,7 @@ function Home() {
               (client?.id === nextMove
                 ? roundWords.map((item, i) => (
                     <Word
+                      client={client}
                       roundWords={roundWords}
                       admin={admin}
                       uniqueId={uniqueId}
@@ -401,6 +451,7 @@ function Home() {
                     .slice(0, roundWords.length - 1)
                     .map((item) => (
                       <Word
+                        client={client}
                         admin={admin}
                         uniqueId={uniqueId}
                         currentTeamMove={currentTeamMove}
@@ -415,6 +466,7 @@ function Home() {
             {isRoundEnded &&
               roundWords.map((item) => (
                 <Word
+                  client={client}
                   admin={admin}
                   uniqueId={uniqueId}
                   currentTeamMove={currentTeamMove}
@@ -430,7 +482,16 @@ function Home() {
           </div>
         </div>
       )}
-
+      <div className="openLogs">
+        <button onClick={() => setLogsOpened((state) => !state)}>
+          {t('main.logs')}
+          <img
+            src="https://cdn-icons-png.flaticon.com/128/9485/9485469.png"
+            alt="open logs"
+          />
+        </button>
+      </div>
+      {logsOpened && <LogInfo roundLogs={roundLogs} />}
       <div className="ultraWrapper">
         <div className="fieldWrapper">
           <PlayField

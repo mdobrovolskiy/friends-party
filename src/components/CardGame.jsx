@@ -1,7 +1,8 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const CardGame = ({ img, title, description, createUser }) => {
+  const { t } = useTranslation()
   return (
     <div className="card">
       <div className="topImage">
@@ -17,7 +18,9 @@ const CardGame = ({ img, title, description, createUser }) => {
           </div>
         </div>
         <div className="createBtn">
-          <button onClick={createUser}>Create {title} lobby</button>
+          <button onClick={createUser}>
+            {t('landing.create')} {title} {t('landing.lobby')}
+          </button>
         </div>
       </div>
     </div>

@@ -4,10 +4,27 @@ import { useState } from 'react'
 import { doc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useParams } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { setCurrentUser } from '../redux/Slices/userSlice'
 import { avatars } from '../avatars'
 import Avatar from './Avatar'
+import { useTranslation } from 'react-i18next'
+
+const locales = {
+  en: {
+    title: 'en',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/1200px-Flag_of_the_United_Kingdom_%281-2%29.svg.png',
+  },
+  ru: {
+    title: 'ru',
+    img: 'https://cdn-0.emojis.wiki/emoji-pics/google/pig-face-google.png',
+  },
+  uk: {
+    title: 'uk',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Flag_of_Ukraine.svg/1200px-Flag_of_Ukraine.svg.png',
+  },
+}
+
 const Settings = ({
   users,
   client,
@@ -23,6 +40,7 @@ const Settings = ({
   clientLocalId,
   clientAvatar,
 }) => {
+  const { t, i18n } = useTranslation()
   const userNameInputRef = useRef()
   const dispatch = useDispatch()
   const params = useParams()
@@ -31,6 +49,12 @@ const Settings = ({
   const [inputOpen, setInputOpen] = useState(false)
   const [error, setError] = useState(false)
 
+  const changeLang = (lang) => {
+    if (i18n.language !== lang) {
+      i18n.changeLanguage(lang)
+      document.documentElement.lang = lang
+    }
+  }
   useEffect(() => {
     if (settingsOpened) {
       function handler(e) {
@@ -147,46 +171,48 @@ const Settings = ({
     }
   }, [inputOpen])
   const restartGame = async () => {
-    users.forEach(async (user) => {
-      if (user.isAdmin) {
-        const userRef = doc(db, `usersId=${params.id}`, user.id)
-        await updateDoc(userRef, {
-          userName: user.userName,
-          isAdmin: true,
-          team: 0,
-          isReady: false,
-          currentTeamMove: 1,
-          isGameStarted: false,
-          isRoundEnded: false,
-          isRoundStarted: false,
-          moverLimit: 1,
-          nextMove: 0,
-          teamScore: 0,
-          timeLeft: 60,
-          uniqueId: Date.now(),
-          winPoints: 20,
-          isGameEnded: false,
-          entryPointScore: 0,
-        })
-      } else {
-        const userRef = doc(db, `usersId=${params.id}`, user.id)
-        await updateDoc(userRef, {
-          userName: user.userName,
-          isAdmin: false,
-          team: 0,
-          isReady: false,
-          teamScore: 0,
-          entryPointScore: 0,
-          nextMove: 0,
-        })
-      }
-    })
+    if (client.isAdmin) {
+      users.forEach(async (user) => {
+        if (user.isAdmin) {
+          const userRef = doc(db, `usersId=${params.id}`, user.id)
+          await updateDoc(userRef, {
+            userName: user.userName,
+            isAdmin: true,
+            team: 0,
+            isReady: false,
+            currentTeamMove: 1,
+            isGameStarted: false,
+            isRoundEnded: false,
+            isRoundStarted: false,
+            moverLimit: 1,
+            nextMove: 0,
+            teamScore: 0,
+            timeLeft: 60,
+            uniqueId: Date.now(),
+            winPoints: 20,
+            isGameEnded: false,
+            entryPointScore: 0,
+          })
+        } else {
+          const userRef = doc(db, `usersId=${params.id}`, user.id)
+          await updateDoc(userRef, {
+            userName: user.userName,
+            isAdmin: false,
+            team: 0,
+            isReady: false,
+            teamScore: 0,
+            entryPointScore: 0,
+            nextMove: 0,
+          })
+        }
+      })
+    }
   }
   return (
     <div className="settingsWrap">
       <div ref={modalRef} className="settingsMain">
         <div className="settingsItem">
-          Score to win:{' '}
+          {t('settings.score')}{' '}
           <input
             onClick={() => setIsEditing(true)}
             onKeyDown={handleKeyPress}
@@ -224,7 +250,7 @@ const Settings = ({
           )}
         </div>
         <div className="settingsItem">
-          Shuffle players{' '}
+          {t('settings.shuffle')}{' '}
           <img
             onClick={shufflePlayers}
             src="https://cdn-icons-png.flaticon.com/128/10152/10152527.png"
@@ -232,7 +258,23 @@ const Settings = ({
           />
         </div>
         <div className="settingsItem">
-          Restart game{' '}
+          <div className="select">{t('settings.lang')}</div>
+          <div className="languages">
+            {Object.keys(locales).map((lang) => (
+              <button
+                className="changeLang"
+                style={{
+                  backgroundImage: `url(${locales[lang].img})`,
+                  opacity: i18n.language === lang ? '0.5' : '1',
+                }}
+                key={lang}
+                onClick={() => changeLang(lang)}
+              ></button>
+            ))}
+          </div>
+        </div>
+        <div className="settingsItem">
+          {t('settings.restart')}{' '}
           <img
             onClick={restartGame}
             src="https://cdn-icons-png.flaticon.com/128/560/560512.png"
@@ -251,7 +293,7 @@ const Settings = ({
               placeholder="Change username"
             />
           ) : (
-            <span> Change username </span>
+            t('settings.name')
           )}
           {inputOpen ? (
             <>
@@ -289,11 +331,7 @@ const Settings = ({
             />
           ))}
         </div>
-        {error && (
-          <div className="error">
-            Error, username should be less than 17 symbols
-          </div>
-        )}
+        {error && <div className="error">{t('settings.error')}</div>}
       </div>
     </div>
   )

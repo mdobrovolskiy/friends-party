@@ -1,0 +1,48 @@
+{
+  "main": {
+    "test": "Hello world",
+    "logs": "Open logs",
+    "teams": "Teams",
+    "copy": "Copy link",
+    "score": "Score"
+  },
+  "field": {
+    "start": "Start",
+    "waiting": "Waiting",
+    "notReady": "Not Ready",
+    "ready": "Ready",
+    "startRound": "Start Round",
+    "unready": "Unready",
+    "confirm": "Confirm",
+    "answer": "Answer",
+    "next": "Next",
+    "prepare": "Prepare",
+    "spectating": "Spectating"
+  },
+  "button": {
+    "start": "Waiting for start",
+    "waiting": "Waiting",
+    "getReady": "Get ready",
+    "checkAndConfirm": "Check and confirm",
+    "opponentTeamPlaying": "Opponent team is playing",
+    "timeToShine": "Time to shine",
+    "waitingForTeammate": "Waiting for teammate",
+    "waitingForLeaderToStart": "Waiting for leader to start"
+  },
+  "settings": {
+    "score": "Score to win",
+    "shuffle": "Shuffle players",
+    "lang": "Language",
+    "restart": "Restart game",
+    "name": "Change username",
+    "error": "Error, username should be less than 17 symbols"
+  },
+  "landing": {
+    "alias": "Alias",
+    "subText": "cool game for parties, name a word without saying it",
+    "create": "Create",
+    "lobby": "lobby",
+    "memes": "Memes",
+    "dev": "project is in the development"
+  }
+}

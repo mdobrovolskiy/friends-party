@@ -41,6 +41,7 @@ const Modal = ({ setShowModal, avatarIndex, setAvatarIndex, client }) => {
         nextMove: 0,
         localId: localId,
         avatar: avatars[avatarIndex],
+        isOnline: true,
       })
 
       setInputValue('')
